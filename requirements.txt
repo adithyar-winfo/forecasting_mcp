@@ -1,0 +1,6 @@
+fastmcp==2.13.0.2
+python-dotenv==1.2.1
+numpy>=1.26.0
+pandas>=2.2.0
+lightgbm>=4.6.0
+psycopg2-binary==2.9.10
