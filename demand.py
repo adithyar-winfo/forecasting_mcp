@@ -9,11 +9,18 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from mcp_servers.forecasting_mcp.config import MAX_HORIZON
-from mcp_servers.forecasting_mcp.features import CALENDAR_FEATURES, build_calendar_features
-from mcp_servers.forecasting_mcp.models import (
-    InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
-)
+try:
+    from .config import MAX_HORIZON
+    from .features import CALENDAR_FEATURES, build_calendar_features
+    from .models import (
+        InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
+    )
+except ImportError:
+    from config import MAX_HORIZON
+    from features import CALENDAR_FEATURES, build_calendar_features
+    from models import (
+        InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
+    )
 
 logger = logging.getLogger("forecasting_mcp.demand")
 

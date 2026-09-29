@@ -1,18 +1,23 @@
 """Foot Locker Supply Chain Forecasting MCP server (demand, inbound, labor)."""
 import logging
-import os
 import sys
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+from fastmcp import FastMCP
 
-from fastmcp import FastMCP  # noqa: E402
-
-from mcp_servers.db_mcp.service import DBService  # noqa: E402
-from mcp_servers.forecasting_mcp.config import DEFAULT_MAX_ROWS, SCHEMA, get_db_config  # noqa: E402
-from mcp_servers.forecasting_mcp.db_adapter import SupplyChainDBAdapter  # noqa: E402
-from mcp_servers.forecasting_mcp.models import DataSourceError, ForecastError  # noqa: E402
-from mcp_servers.forecasting_mcp.service import SupplyChainForecastService, to_jsonable  # noqa: E402
+try:
+    from .config import DEFAULT_MAX_ROWS, SCHEMA, get_db_config
+    from .db_adapter import SupplyChainDBAdapter
+    from .db_service import DBService
+    from .models import DataSourceError, ForecastError
+    from .service import SupplyChainForecastService, to_jsonable
+except ImportError:
+    from config import DEFAULT_MAX_ROWS, SCHEMA, get_db_config
+    from db_adapter import SupplyChainDBAdapter
+    from db_service import DBService
+    from models import DataSourceError, ForecastError
+    from service import SupplyChainForecastService, to_jsonable
 
 # stdout carries the MCP stdio protocol, so logs must go to stderr.
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(asctime)s %(levelname)s %(name)s: %(message)s")

@@ -6,9 +6,14 @@ import logging
 import numpy as np
 import pandas as pd
 
-from mcp_servers.forecasting_mcp.models import (
-    InsufficientDataError, ModelArtifact, compute_metrics, make_version,
-)
+try:
+    from .models import (
+        InsufficientDataError, ModelArtifact, compute_metrics, make_version,
+    )
+except ImportError:
+    from models import (
+        InsufficientDataError, ModelArtifact, compute_metrics, make_version,
+    )
 
 logger = logging.getLogger("forecasting_mcp.labor")
 

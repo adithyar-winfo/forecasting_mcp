@@ -5,6 +5,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -23,12 +24,47 @@ MAX_ROWS_LIMIT = 5000
 
 
 def get_db_config() -> dict[str, Any]:
-    """Return the shared DB config from the `db_mcp` package.
+    """Build DB config from environment for standalone deployments.
 
-    Forecasting MCP should not embed or override database-specific configuration.
-    The shared `db_mcp` config is the
-    single source of truth for connection details.
+    Supports either `DATABASE_URL` or explicit environment variables:
+    `POSTGRES_HOST/DB_HOST`, `POSTGRES_DATABASE/DB_NAME`,
+    `POSTGRES_USERNAME/DB_USER`, `POSTGRES_PASSWORD/DB_PASSWORD`,
+    `POSTGRES_PORT/DB_PORT`.
     """
-    from mcp_servers.db_mcp.config import config
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        parsed = urlparse(database_url)
+        if parsed.scheme not in {"postgres", "postgresql"}:
+            raise ValueError("DATABASE_URL must use postgres/postgresql scheme.")
+        return {
+            "host": parsed.hostname or "localhost",
+            "dbname": (parsed.path or "").lstrip("/"),
+            "user": parsed.username or "",
+            "password": parsed.password or "",
+            "port": int(parsed.port or 5432),
+        }
 
-    return dict(config)
+    host = os.getenv("POSTGRES_HOST") or os.getenv("DB_HOST")
+    dbname = os.getenv("POSTGRES_DATABASE") or os.getenv("DB_NAME")
+    user = os.getenv("POSTGRES_USERNAME") or os.getenv("DB_USER")
+    password = os.getenv("POSTGRES_PASSWORD") or os.getenv("DB_PASSWORD")
+    port = int(os.getenv("POSTGRES_PORT") or os.getenv("DB_PORT") or "5432")
+
+    missing = [
+        name for name, value in {
+            "POSTGRES_HOST/DB_HOST": host,
+            "POSTGRES_DATABASE/DB_NAME": dbname,
+            "POSTGRES_USERNAME/DB_USER": user,
+            "POSTGRES_PASSWORD/DB_PASSWORD": password,
+        }.items() if not value
+    ]
+    if missing:
+        raise ValueError(f"Missing DB env vars: {', '.join(missing)}")
+
+    return {
+        "host": host,
+        "dbname": dbname,
+        "user": user,
+        "password": password,
+        "port": port,
+    }

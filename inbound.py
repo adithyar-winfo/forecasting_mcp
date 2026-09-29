@@ -7,10 +7,16 @@ from collections.abc import Callable
 import numpy as np
 import pandas as pd
 
-from mcp_servers.forecasting_mcp.features import build_calendar_features
-from mcp_servers.forecasting_mcp.models import (
-    InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
-)
+try:
+    from .features import build_calendar_features
+    from .models import (
+        InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
+    )
+except ImportError:
+    from features import build_calendar_features
+    from models import (
+        InsufficientDataError, LightGBMModel, ModelArtifact, compute_metrics, make_version, metric_or_inf,
+    )
 
 logger = logging.getLogger("forecasting_mcp.inbound")
 

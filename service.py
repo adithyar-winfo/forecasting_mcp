@@ -11,14 +11,24 @@ from typing import Any, Iterable
 import numpy as np
 import pandas as pd
 
-from mcp_servers.forecasting_mcp import demand as demand_mod
-from mcp_servers.forecasting_mcp import inbound as inbound_mod
-from mcp_servers.forecasting_mcp import labor as labor_mod
-from mcp_servers.forecasting_mcp.config import DEFAULT_MAX_ROWS, MAX_HORIZON, MAX_ROWS_LIMIT
-from mcp_servers.forecasting_mcp.db_adapter import SupplyChainDBAdapter
-from mcp_servers.forecasting_mcp.models import (
-    ForecastError, InsufficientDataError, InvalidRequestError, ModelArtifact, ModelCache,
-)
+try:
+    from . import demand as demand_mod
+    from . import inbound as inbound_mod
+    from . import labor as labor_mod
+    from .config import DEFAULT_MAX_ROWS, MAX_HORIZON, MAX_ROWS_LIMIT
+    from .db_adapter import SupplyChainDBAdapter
+    from .models import (
+        ForecastError, InsufficientDataError, InvalidRequestError, ModelArtifact, ModelCache,
+    )
+except ImportError:
+    import demand as demand_mod
+    import inbound as inbound_mod
+    import labor as labor_mod
+    from config import DEFAULT_MAX_ROWS, MAX_HORIZON, MAX_ROWS_LIMIT
+    from db_adapter import SupplyChainDBAdapter
+    from models import (
+        ForecastError, InsufficientDataError, InvalidRequestError, ModelArtifact, ModelCache,
+    )
 
 logger = logging.getLogger("forecasting_mcp.service")
 

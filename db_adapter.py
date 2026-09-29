@@ -1,9 +1,4 @@
-"""Database access for the supply-chain forecasting MCP, targeting the configured schema.
-
-This module must not contain database-specific configuration. Connection
-management and client construction are delegated to the shared `db_mcp` package
-and its `DBService` instance passed into the adapter.
-"""
+"""Database access for the supply-chain forecasting MCP, targeting the configured schema."""
 from __future__ import annotations
 
 import logging
@@ -13,8 +8,13 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from mcp_servers.db_mcp.service import DBService
-from mcp_servers.forecasting_mcp.models import DataSourceError
+
+try:
+    from .db_service import DBService
+    from .models import DataSourceError
+except ImportError:
+    from db_service import DBService
+    from models import DataSourceError
 
 logger = logging.getLogger("forecasting_mcp.db")
 
@@ -79,7 +79,7 @@ def _to_db_value(value: Any) -> Any:
 
 
 class SupplyChainDBAdapter:
-    """Reads fl source tables and writes forecast results through the shared DBService connection."""
+    """Reads source tables and writes forecast results through DBService."""
 
     def __init__(self, db_service: DBService, db_config: dict[str, Any], schema: str) -> None:
         self.db = db_service
