@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from dotenv import load_dotenv
 
@@ -40,14 +40,17 @@ def get_db_config() -> dict[str, Any]:
     database_url = os.getenv("DATABASE_URL")
     if database_url:
         parsed = urlparse(database_url)
-        if parsed.scheme not in {"postgres", "postgresql"}:
+        if not (parsed.scheme.startswith("postgres") or parsed.scheme.startswith("postgresql")):
             raise ValueError("DATABASE_URL must use postgres/postgresql scheme.")
+        query = parse_qs(parsed.query)
+        sslmode = query.get("sslmode", [None])[0]
         return {
             "host": parsed.hostname or "localhost",
             "dbname": (parsed.path or "").lstrip("/"),
-            "user": parsed.username or "",
-            "password": parsed.password or "",
+            "user": unquote(parsed.username or ""),
+            "password": unquote(parsed.password or ""),
             "port": int(parsed.port or 5432),
+            **({"sslmode": sslmode} if sslmode else {}),
         }
 
     host = os.getenv("POSTGRES_HOST") or os.getenv("DB_HOST")
