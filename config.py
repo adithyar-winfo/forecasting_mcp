@@ -9,9 +9,15 @@ from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(_PROJECT_ROOT / ".env")
-load_dotenv(Path(__file__).with_name(".env"))
+
+_here = Path(__file__).resolve()
+for candidate in [
+    _here.parent / ".env",          # same folder
+    _here.parent.parent / ".env",   # one level up
+    Path.cwd() / ".env",            # current working dir
+]:
+    if candidate.exists():
+        load_dotenv(candidate)
 
 SCHEMA = os.getenv("FL_SCHEMA", "fl")
 if not re.fullmatch(r"[a-z_][a-z0-9_]*", SCHEMA):
