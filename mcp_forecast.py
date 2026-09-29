@@ -1,5 +1,6 @@
 """Foot Locker Supply Chain Forecasting MCP server (demand, inbound, labor)."""
 import logging
+import os
 import sys
 from collections.abc import Callable
 from typing import Any
@@ -179,4 +180,18 @@ def forecast_labor(
 
 
 if __name__ == "__main__":
-    mcp.run()
+    # Render web services require an open port. If PORT is present, default to
+    # streamable-http unless explicitly overridden.
+    transport = os.getenv("MCP_TRANSPORT")
+    if not transport:
+        transport = "streamable-http" if os.getenv("PORT") else "stdio"
+
+    if transport in {"http", "streamable-http", "sse"}:
+        host = os.getenv("HOST", "0.0.0.0")
+        port = int(os.getenv("PORT", "8000"))
+        path = os.getenv("MCP_PATH", "/mcp")
+        logger.info("Starting forecasting_mcp over %s on %s:%s%s", transport, host, port, path)
+        mcp.run(transport=transport, host=host, port=port, path=path)
+    else:
+        logger.info("Starting forecasting_mcp over stdio")
+        mcp.run(transport="stdio")
